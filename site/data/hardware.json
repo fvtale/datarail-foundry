@@ -1,0 +1,27 @@
+{
+  "_comment": "Hardware profiles. Hashrates are in H/s per algorithm, watts at the wall for that algorithm. These are estimates until measured on the real machine: replace them with benchmark numbers and set measured to true.",
+  "profiles": [
+    {
+      "id": "rtx5070",
+      "name": "RTX 5070 (Hearth eGPU)",
+      "kind": "gpu",
+      "measured": false,
+      "algorithms": {
+        "KawPow":    { "hashrate": 33e6,  "watts": 170 },
+        "Autolykos": { "hashrate": 190e6, "watts": 120 },
+        "Etchash":   { "hashrate": 72e6,  "watts": 130 }
+      },
+      "rental": { "watts": 200 }
+    },
+    {
+      "id": "hearth-cpu",
+      "name": "Hearth mini PC CPU",
+      "kind": "cpu",
+      "measured": false,
+      "algorithms": {
+        "RandomX": { "hashrate": 7000, "watts": 45 }
+      },
+      "rental": null
+    }
+  ]
+}

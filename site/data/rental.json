@@ -1,0 +1,6 @@
+{
+  "_comment": "Assumptions for renting GPU time instead of mining. Rates are what a 5070-class consumer card fetches on public GPU marketplaces, in USD per hour, before any platform cut. Hand-edited; revisit when Forge has a job interface and real prices exist.",
+  "rate_usd_per_hour": { "low": 0.08, "typical": 0.14, "high": 0.22 },
+  "utilization": 0.6,
+  "platform_fee": 0.1
+}

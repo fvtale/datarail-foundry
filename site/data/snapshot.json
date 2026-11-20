@@ -1,0 +1,83 @@
+{
+  "generated_at": "2026-11-20T20:22:10.025Z",
+  "btc_usd": 58397,
+  "sources": [
+    "whattomine.com",
+    "p2pool.observer",
+    "coingecko.com"
+  ],
+  "coins": [
+    {
+      "tag": "RVN",
+      "name": "Ravencoin",
+      "algorithm": "KawPow",
+      "device": "gpu",
+      "block_time": 60,
+      "block_reward": 1250,
+      "nethash": 450401693706,
+      "price_usd": 0.0009299154145096109,
+      "change_24h": -0.09059286255584775,
+      "stale": false
+    },
+    {
+      "tag": "ERG",
+      "name": "Ergo",
+      "algorithm": "Autolykos",
+      "device": "gpu",
+      "block_time": 119,
+      "block_reward": 3.138240323,
+      "nethash": 572326385853,
+      "price_usd": 0.18872737356077268,
+      "change_24h": -0.06028756652894274,
+      "stale": false
+    },
+    {
+      "tag": "ETC",
+      "name": "Ethereum Classic",
+      "algorithm": "Etchash",
+      "device": "gpu",
+      "block_time": 13.317,
+      "block_reward": 1.589248,
+      "nethash": 173658278499939,
+      "price_usd": 5.3862652690118145,
+      "change_24h": -0.06195926023824394,
+      "stale": false
+    },
+    {
+      "tag": "NEOX",
+      "name": "Neoxa",
+      "algorithm": "KawPow",
+      "device": "gpu",
+      "block_time": 61,
+      "block_reward": 500,
+      "nethash": 14603214348,
+      "price_usd": 0.00009963228437439648,
+      "change_24h": -0.017689413323553227,
+      "stale": false
+    },
+    {
+      "tag": "XNA",
+      "name": "Neurai",
+      "algorithm": "KawPow",
+      "device": "gpu",
+      "block_time": 60,
+      "block_reward": 3000,
+      "nethash": 38077697524,
+      "price_usd": 0.000027445810538980696,
+      "change_24h": -0.017687624761304477,
+      "stale": false
+    },
+    {
+      "tag": "XMR",
+      "name": "Monero",
+      "algorithm": "RandomX",
+      "device": "cpu",
+      "block_time": 120,
+      "block_reward": 0.60451906,
+      "nethash": 6246430694.033334,
+      "price_usd": 451.6,
+      "change_24h": -0.08739642362329093,
+      "stale": false
+    }
+  ]
+}

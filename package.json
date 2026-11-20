@@ -1,0 +1,15 @@
+{
+  "name": "datarail-foundry",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Foundry at datarail.org/foundry: what a GPU or CPU earns mining, net of power and fees, against renting it out by the hour.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "check": "node tools/check.mjs",
+    "refresh": "node tools/refresh.mjs",
+    "serve": "node tools/serve.mjs"
+  }
+}

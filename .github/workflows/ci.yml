@@ -1,0 +1,24 @@
+name: CI
+
+# Pull requests only; a push to main goes to Publish, which runs the same check.
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      # No install step: nothing here has dependencies, on purpose.
+      - name: Check the data
+        run: node tools/check.mjs
+      - name: Syntax-check every script
+        run: for f in tools/*.mjs site/js/*.js; do node --check "$f"; done

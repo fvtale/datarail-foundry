@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+  Source: github.com/fvtale/datarail-foundry (site/index.html).
+  Published into datarail-site/public/foundry by CI. Anything edited in
+  datarail-site directly is overwritten on the next publish.
+
+  Every number on this page is computed in js/foundry.js from the JSON in
+  data/: snapshot.json (written by tools/refresh.mjs) and the hand-edited
+  assumptions beside it. Nothing here is typed in by hand.
+-->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundry — mining and GPU yield</title>
+<meta name="description" content="Foundry by DataRail: what a GPU or CPU actually earns mining today, net of power and pool fees, set against renting the same hardware out by the hour.">
+<meta name="color-scheme" content="dark">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://datarail.org/foundry">
+<meta property="og:title" content="Foundry — mining and GPU yield">
+<meta property="og:description" content="What a GPU actually earns mining today, net of power and fees, against renting it out by the hour.">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/assets/circuit.css">
+<link rel="stylesheet" href="css/foundry.css">
+</head>
+
+<body>
+<a class="skip-link" href="#calc">Skip to the calculator</a>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="/">
+      <span class="brand-dot" aria-hidden="true"></span>
+      <span class="brand-text">DataRail <b>Foundry</b></span>
+    </a>
+    <nav class="header-nav" aria-label="Page">
+      <a href="#calc">Yield</a>
+      <a href="#rent">Mine vs rent</a>
+      <a href="#pool">Pool</a>
+      <a href="/library/">Library</a>
+    </nav>
+  </div>
+  <div class="ticker" aria-label="Coin prices" id="ticker">
+    <div class="ticker-track" id="tickerTrack"></div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="shell">
+    <section class="hero">
+      <p class="label">Foundry · simulator</p>
+      <h1>What your hardware earns, net.</h1>
+      <p>
+        Live network numbers, real power prices, honest fees. Foundry ranks the coins a GPU or CPU
+        can still mine, switches to whichever pays best, and sets that against renting the same card
+        out by the hour.
+      </p>
+      <p class="asof" id="asof">Loading market snapshot…</p>
+    </section>
+
+    <!-- ===================== Yield ===================== -->
+    <section class="panel-section" id="calc" aria-labelledby="calcTitle">
+      <div class="sec-head">
+        <h2 id="calcTitle">Yield</h2>
+        <span class="n">per rig · USD</span>
+      </div>
+
+      <div class="controls" id="controls">
+        <label class="field">
+          <span class="label">Hardware</span>
+          <select id="profile"></select>
+        </label>
+        <label class="field">
+          <span class="label">Power price <output id="kwhOut"></output></span>
+          <input id="kwh" type="range" min="0" max="0.5" step="0.01" value="0.25">
+        </label>
+        <label class="field">
+          <span class="label">Pool fee <output id="feeOut"></output></span>
+          <input id="fee" type="range" min="0" max="0.02" step="0.0025" value="0.0075">
+        </label>
+        <label class="field">
+          <span class="label">Hours a day <output id="hoursOut"></output></span>
+          <input id="hours" type="range" min="1" max="24" step="1" value="24">
+        </label>
+      </div>
+
+      <details class="rig" id="rig">
+        <summary>
+          <span>Rig numbers</span>
+          <span class="rig-flag" id="rigFlag"></span>
+        </summary>
+        <p class="rig-note">Hashrate and wall power for each algorithm. Edit them to model your own rig.</p>
+        <div class="rig-grid" id="rigGrid"></div>
+        <button class="btn btn-small" type="button" id="rigReset">Reset to profile</button>
+      </details>
+
+      <div class="tiles" id="tiles"></div>
+
+      <div class="table-wrap">
+        <table class="yield" id="yieldTable">
+          <caption class="sr-only">Daily yield per coin for the chosen hardware, best first</caption>
+          <thead>
+            <tr>
+              <th scope="col">Coin</th>
+              <th scope="col" class="num">Mined / day</th>
+              <th scope="col" class="num">Revenue</th>
+              <th scope="col" class="num">Power</th>
+              <th scope="col" class="num">Fee</th>
+              <th scope="col" class="num">Net / day</th>
+              <th scope="col" class="num">Net / 30d</th>
+              <th scope="col" class="num">Break-even</th>
+            </tr>
+          </thead>
+          <tbody id="yieldBody"></tbody>
+        </table>
+      </div>
+      <p class="fine">
+        Break-even is the power price at which the coin stops paying. Expected values: real blocks
+        arrive by luck, so a single day can be well above or below.
+      </p>
+    </section>
+
+    <div class="rail-divider" aria-hidden="true">
+      <span class="rd-node"></span><span class="rd-node"></span>
+      <span class="rd-node"></span><span class="rd-node"></span>
+    </div>
+
+    <!-- ===================== Mine vs rent ===================== -->
+    <section class="panel-section" id="rent" aria-labelledby="rentTitle">
+      <div class="sec-head">
+        <h2 id="rentTitle">Mine or rent</h2>
+        <span class="n">per GPU-hour · USD</span>
+      </div>
+      <p class="sec-note">
+        The same card can mine, or run someone's inference and renders for an hourly rate. Both lines
+        are net of power and fees, at the power price set above.
+      </p>
+
+      <div class="controls">
+        <label class="field">
+          <span class="label">Rental rate <output id="rateOut"></output></span>
+          <input id="rate" type="range" min="0.02" max="0.5" step="0.01">
+        </label>
+        <label class="field">
+          <span class="label">Booked <output id="utilOut"></output></span>
+          <input id="util" type="range" min="0.05" max="1" step="0.05">
+        </label>
+        <label class="field">
+          <span class="label">Marketplace cut <output id="cutOut"></output></span>
+          <input id="cut" type="range" min="0" max="0.3" step="0.01">
+        </label>
+      </div>
+
+      <div class="versus" id="versus"></div>
+      <p class="verdict" id="verdict" role="status" aria-live="polite"></p>
+    </section>
+
+    <div class="rail-divider" aria-hidden="true">
+      <span class="rd-node"></span><span class="rd-node"></span>
+      <span class="rd-node"></span><span class="rd-node"></span>
+    </div>
+
+    <!-- ===================== Pool ===================== -->
+    <section class="panel-section" id="pool" aria-labelledby="poolTitle">
+      <div class="sec-head">
+        <h2 id="poolTitle">Pool</h2>
+        <span class="tag warn">Mock · no pool running</span>
+      </div>
+      <p class="sec-note">
+        What a Foundry PPLNS pool would look like for the coin above. Members' payouts follow their
+        share of work over the last <span id="windowBlocks"></span> blocks; the pool keeps the fee.
+        Blocks below are simulated from the expected rate, not real.
+      </p>
+
+      <div class="controls">
+        <label class="field">
+          <span class="label">Pool coin</span>
+          <select id="poolCoin"></select>
+        </label>
+        <label class="field">
+          <span class="label">Pool size <output id="sizeOut"></output></span>
+          <input id="size" type="range" min="0" max="4" step="0.05" value="2.4">
+        </label>
+      </div>
+
+      <div class="tiles" id="poolTiles"></div>
+
+      <div class="pool-grid">
+        <div class="card">
+          <p class="label">Members</p>
+          <table class="mini" id="members">
+            <thead><tr><th scope="col">Rig</th><th scope="col" class="num">Hashrate</th><th scope="col" class="num">Share</th><th scope="col" class="num">Est. / day</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <p class="label">Recent blocks · simulated</p>
+          <table class="mini" id="blocks">
+            <thead><tr><th scope="col">Found</th><th scope="col" class="num">Reward</th><th scope="col" class="num">Luck</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <div class="note" id="notes">
+      <strong>How this works, and what isn't decided.</strong>
+      Network hashrate, block rewards and prices come from public sources (<span id="sources"></span>),
+      pulled by a scheduled job, so this page never calls them itself. Hashrates for Hearth's
+      hardware are estimates until they're benchmarked. Pool payouts aren't settled: holding members'
+      rewards would make Foundry a custodian, which can bring money-transmitter rules, so nothing real
+      gets paid out until there's a legal read. Not financial advice.
+    </div>
+
+    <noscript>
+      <div class="note"><strong>The simulator needs JavaScript.</strong> The numbers are all computed in the browser from the snapshot.</div>
+    </noscript>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="shell footer-inner">
+    <a href="/">datarail.org</a>
+    <a href="/library/">Library</a>
+    <a href="https://github.com/fvtale/datarail-foundry" target="_blank" rel="noopener noreferrer">Source on GitHub</a>
+    <a href="mailto:contact@datarail.org">contact@datarail.org</a>
+    <p class="footer-note">Foundry is a simulator for now: no wallet, no pool, no money moves. &copy; 2026 DataRail.</p>
+  </div>
+</footer>
+
+<div class="tip" id="tip" role="tooltip" hidden></div>
+
+<script type="module" src="js/foundry.js"></script>
+<script src="/assets/circuit.js" defer></script>
+</body>
+</html>

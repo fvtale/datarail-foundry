@@ -1,0 +1,11 @@
+{
+  "_comment": "Coins the simulator ranks. Hand-edited. tools/refresh.mjs reads this list and writes snapshot.json. 'source' says where network stats come from: 'whattomine' uses the key under coins.json, 'p2pool' is Monero's mainchain from p2pool.observer.",
+  "coins": [
+    { "tag": "RVN",  "name": "Ravencoin",        "algorithm": "KawPow",    "device": "gpu", "source": "whattomine", "key": "Ravencoin" },
+    { "tag": "ERG",  "name": "Ergo",             "algorithm": "Autolykos", "device": "gpu", "source": "whattomine", "key": "Ergo" },
+    { "tag": "ETC",  "name": "Ethereum Classic", "algorithm": "Etchash",   "device": "gpu", "source": "whattomine", "key": "EthereumClassic" },
+    { "tag": "NEOX", "name": "Neoxa",            "algorithm": "KawPow",    "device": "gpu", "source": "whattomine", "key": "Neoxa" },
+    { "tag": "XNA",  "name": "Neurai",           "algorithm": "KawPow",    "device": "gpu", "source": "whattomine", "key": "Neurai" },
+    { "tag": "XMR",  "name": "Monero",           "algorithm": "RandomX",   "device": "cpu", "source": "p2pool",     "coingecko": "monero" }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "foundry",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["tools/serve.mjs", "5304"],
+      "port": 5304,
+      "url": "http://localhost:5304"
+    }
+  ]
+}

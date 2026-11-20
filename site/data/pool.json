@@ -1,0 +1,8 @@
+{
+  "_comment": "Defaults for the pool panel. No pool is running: the dashboard is a mock. Payout mode is an open decision (see docs/DECISIONS.md).",
+  "fee": 0.0075,
+  "fee_range": [0, 0.02],
+  "scheme": "PPLNS",
+  "pplns_window_blocks": 2,
+  "payout_mode": "undecided"
+}

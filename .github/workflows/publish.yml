@@ -1,0 +1,96 @@
+name: Publish to datarail.org
+
+# Refreshes the market snapshot, checks the data, and copies site/ into
+# datarail-site/public/foundry, whose own deploy ships it on push. Runs on every
+# push to main and twice a day, so the numbers on the live page are never more
+# than about twelve hours old.
+#
+# The scheduled snapshot lives only in the published copy. The snapshot.json
+# committed here is the seed the page falls back to if a refresh fails, and is
+# updated by hand with `node tools/refresh.mjs` when it gets old.
+#
+# Off until the repository variable PUBLISH_TO_SITE is set to true and the
+# DATARAIL_SITE_DEPLOY_KEY secret holds the private half of a write deploy key
+# on fvtale/datarail-site, the same shape the Library and Movies use.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'tools/**'
+      - '.github/workflows/publish.yml'
+  schedule:
+    - cron: '17 5,17 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Refresh and copy, but do not commit to the site'
+        type: boolean
+        default: true
+
+concurrency:
+  group: foundry-publish
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Foundry
+        uses: actions/checkout@v5
+        with:
+          path: foundry
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      # A failed refresh keeps the committed snapshot rather than failing the run:
+      # a page with day-old numbers beats no page.
+      - name: Refresh the market snapshot
+        working-directory: foundry
+        run: node tools/refresh.mjs || echo "::warning title=Refresh failed::Publishing the committed snapshot."
+
+      - name: Check the data
+        working-directory: foundry
+        run: node tools/check.mjs
+
+      - name: Publishing is switched off
+        if: vars.PUBLISH_TO_SITE != 'true'
+        run: echo "::notice title=Checked, not published::Set the PUBLISH_TO_SITE variable to true and add the DATARAIL_SITE_DEPLOY_KEY secret to copy this into datarail-site."
+
+      - name: Check out the site
+        if: vars.PUBLISH_TO_SITE == 'true'
+        uses: actions/checkout@v5
+        with:
+          repository: fvtale/datarail-site
+          ssh-key: ${{ secrets.DATARAIL_SITE_DEPLOY_KEY }}
+          path: site
+
+      - name: Copy the page into place
+        if: vars.PUBLISH_TO_SITE == 'true'
+        run: rsync -a --delete foundry/site/ site/public/foundry/
+
+      - name: Commit to the site
+        if: vars.PUBLISH_TO_SITE == 'true' && (github.event_name != 'workflow_dispatch' || inputs.dry_run == false)
+        working-directory: site
+        run: |
+          if [ -z "$(git status --porcelain -- public/foundry)" ]; then
+            echo "site already matches, nothing to push"
+            exit 0
+          fi
+          git config user.name  "datarail-foundry"
+          git config user.email "contact@datarail.org"
+          git add public/foundry
+          git commit -m "Update the foundry page (datarail-foundry@${GITHUB_SHA::12})"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Say what a dry run would have done
+        if: vars.PUBLISH_TO_SITE == 'true' && github.event_name == 'workflow_dispatch' && inputs.dry_run
+        working-directory: site
+        run: git status --porcelain -- public/foundry || echo "(none)"
